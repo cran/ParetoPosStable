@@ -1,0 +1,17 @@
+a8f7e7e028cc43ace8d50647347ce8fc *DESCRIPTION
+df390c53434517b304ac5db487184641 *NAMESPACE
+a26de2cd544192e3de7d8732cca61442 *R/ParetoPosStable.R
+7db8c1546567ff113c0daac46ef093d2 *man/GoF.PPSfit.Rd
+f2dd7f5e7205279ec0516b62fff19f65 *man/PPS.fit.Rd
+ed6372781421a6cb89e3211513aa9754 *man/ParetoPosStable-package.Rd
+cb34769315bd883f7607c9337d5fadf5 *man/coef.PPSfit.Rd
+5baf104736656c426543ebc65cdedc17 *man/dPPS.Rd
+a29eb93fdd40ef220ae8300c13405f0c *man/hPPS.Rd
+e6134d8ffad1fbff3ae412b3b3a0121d *man/logLik.PPSfit.Rd
+567ae20803ee8fc0b9fd4bc6da468b84 *man/pPPS.Rd
+3afc54ca232a505e1c0474a6de7c0d50 *man/pareto.fit.Rd
+dbcc3a44d5b75422aee48b2d9cc2c035 *man/plot.PPSfit.Rd
+fc7aff60916db82a3546a0aba81d45c7 *man/print.PPSfit.Rd
+aa802e574027d48c5c2fd95610ab1528 *man/qPPS.Rd
+0cf5bd035db5e59938d16bc53bbfcd62 *man/rPPS.Rd
+9c9a3603315c4a0c299ee2eb2eb55173 *man/se.PPSfit.Rd

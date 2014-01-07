@@ -1,0 +1,68 @@
+\name{PPS.fit}
+\alias{PPS.fit}
+\title{Fitting the Pareto Positive Stable (PPS) distribution}
+\description{\code{PPS.fit()} returns the fit of a PPS distribution to real data, allowing the scale parameter to be held fixed if desired.}
+\usage{
+PPS.fit(x, estim.method = "MLE", sigma = NULL, start, Pareto = FALSE, ...)
+}
+\arguments{
+  \item{x}{a vector of observations}
+  \item{estim.method}{the estimation method. It may be "MLE", "iMLE", "OLS", or "LMOM".
+}
+  \item{sigma}{the value of the scale parameter, if it is known; if the value is \code{NULL}, the parameter is estimated.}
+  \item{start}{a vector of initial parameter estimates for some of the estimation methods.}
+  \item{Pareto}{a logical value indicating if a Pareto fit is required.}
+  \item{\ldots}{other arguments.}
+}
+\details{
+The maximum likelihood method implemented by the direct optimization of the log-likelihood is given by \code{estim.method = "MLE"}. The numerical algorithm to search the optimum is the ``Nelder-Mead'' method implemented in the \code{optim} function, considering as initial values those given in the \code{start} argument or, if it is missing, those provided by the OLS method.
+
+A different approximation of the maximum likelihood estimates is given by \code{estim method = "iMLE"}; it is an iterative methodology where \code{optimize()} function provides the optimum scale parameter value, while the \code{uniroot()} function solve normal equations for that given scale parameter. 
+
+The regression estimates (\code{"OLS"}) searchs an optimum scale value (in a OLS criterion) by the \code{optimize()} function. Then the rest of the parameters are estimated also by OLS, as appears in Sarabia and Prieto (2009).
+
+In the L-moments method (\code{"LMOM"}) estimates are obtained searching parameters that equal the first three sample and theoretical L-moments by means of the ``Nelder-Mead'' algorithm implemented in \code{optim()}; the initial values are given in the \code{start} argument or, if it is missing, provided by the \code{"iMLE"}. 
+}
+\value{
+A \code{PPSfit} Object, a list with
+  \item{estimate}{parameter estimates.}
+  \item{loglik}{the log-likelihood value.}
+  \item{n}{the number of observations.}
+  \item{obs}{the observations.}
+  \item{obsName}{the name of the variable with the observations.}
+  \item{estim.method}{the method of estimation.}
+When this last value is \code{"LMOM"} the function also returns details about the convergence of the numerical method involved (\code{convergence} value).
+}
+\references{
+Sarabia, J.M and Prieto, F. (2009). The Pareto-positive stable distribution: A new descriptive model for city size data, \emph{Physica A: Statistical Mechanics and its Applications}, \bold{388}(19), 4179-4191.
+
+Hosking, J. R. M. (1990). L-moments: analysis and estimation of distributions using linear combinations of order statistics. \emph{Journal of the Royal Statistical Society, Series B}, \bold{52}, 105-124.
+
+}
+%\author{
+%%  ~~who you are~~
+%}
+%\note{
+%%  ~~further notes~~
+%}
+
+%% ~Make other sections like Warning with \section{Warning }{....} ~
+
+\seealso{
+\code{\link{PPS.fit}}, \code{\link{coef.PPSfit}}, \code{\link{print.PPSfit}}, \code{\link{plot.PPSfit}}, \code{\link{GoF.PPSfit}}
+}
+\examples{
+x <- rPPS(50, 1.2, 100, 2.3)
+fit <- PPS.fit(x)
+print(fit)
+coef(fit)
+se.PPSfit(fit, k = 50, show.iters = FALSE)
+logLik(fit)
+par(mfrow=c(2,2))
+plot(fit)
+GoF.PPSfit(fit, k = 50, show.iters = FALSE)
+}
+% Add one or more standard keywords, see file 'KEYWORDS' in the
+% R documentation directory.
+%\keyword{ ~kwd1 }
+%\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
