@@ -10,14 +10,14 @@
   \item{x}{a \code{PPSfit} Object.}
   \item{which}{values from 1 to 4 indicating the type of plot.}
   \item{ask}{an argument to control the plot window.}
-  \item{ylim}{optional argument to control the y limts of the histogram. It is included to prevent non-desired scales on the y-axis.}
-  \item{breaks}{optional argument to control the breakpints of the histogram. See \code{hist} help for the details. It is included to prevent non-desired scales on the y-axis.}
+  \item{ylim}{optional argument to control the y limits of the histogram. It is included to prevent non-desired scales on the y-axis.}
+  \item{breaks}{optional argument to control the breakpoints of the histogram. See \code{hist} help for the details. It is included to prevent non-desired scales on the y-axis.}
   \item{\dots}{other arguments.}
 }
 \details{
 The plots return:
 
-1. The histogram of the observations and the fitted PPS density (\code{which = 1}).
+1. The histogram of the observations and the fitted PPS density (\code{which = 1}). Optional \code{ylim} and \code{breaks} arguments are provided to prevent frequent imbalances between density and histogram scales in real data: they work as the analogue arguments of the default \code{hist} function when \code{which = 1}.
 
 2. The empirical distribution function of data and the cumulative distribution function of the fitted model (\code{which = 2}).
 
@@ -25,24 +25,10 @@ The plots return:
 
 4. A plot in a double log-log scale to check the adequacy of data to the PPS model (\code{which = 4}). On one hand, the X-axis shows the double log of the observations divided by the scale parameter, while the Y-axis shows the log of minus the log of the empirical survival function. On the other hand, the straight line determined by the linear relation between the survival function and the scaled data in a double log-log scale, in relation to the argument class \code{PPSfit} is added. The proximity of the points in the scatter-plot to that straight line is an evidence in favour of a PPS behaviour of data.
 }
-%\value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
-%}
+
 \references{
 Sarabia, J.M and Prieto, F. (2009). The Pareto-positive stable distribution: A new descriptive model for city size data, \emph{Physica A: Statistical Mechanics and its Applications}, \bold{388}(19), 4179-4191.
 }
-%\author{
-%%  ~~who you are~~
-%}
-%\note{
-%%  ~~further notes~~
-%}
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
 \code{\link{PPS.fit}}
@@ -53,7 +39,3 @@ fit <- PPS.fit(x)
 par(mfrow=c(2,2))
 plot(fit)
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-%\keyword{ ~kwd1 }
-%\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line

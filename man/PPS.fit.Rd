@@ -7,11 +7,11 @@ PPS.fit(x, estim.method = "MLE", sigma = NULL, start, Pareto = FALSE, ...)
 }
 \arguments{
   \item{x}{a vector of observations}
-  \item{estim.method}{the estimation method. It may be "MLE", "iMLE", "OLS", or "LMOM".
+  \item{estim.method}{the method of parameter estimation. It may be "MLE", "iMLE", "OLS", or "LMOM".
 }
   \item{sigma}{the value of the scale parameter, if it is known; if the value is \code{NULL}, the parameter is estimated.}
-  \item{start}{a vector of initial parameter estimates for some of the estimation methods.}
-  \item{Pareto}{a logical value indicating if a Pareto fit is required.}
+  \item{start}{a list with the initial values of the parameters for some of the estimation methods.}
+  \item{Pareto}{a logical argument to constrain the PPS fit to a Pareto fit when the value is \code{TRUE}.}
   \item{\ldots}{other arguments.}
 }
 \details{
@@ -30,7 +30,7 @@ A \code{PPSfit} Object, a list with
   \item{n}{the number of observations.}
   \item{obs}{the observations.}
   \item{obsName}{the name of the variable with the observations.}
-  \item{estim.method}{the method of estimation.}
+  \item{estim.method}{the method of parameter estimation.}
 When this last value is \code{"LMOM"} the function also returns details about the convergence of the numerical method involved (\code{convergence} value).
 }
 \references{
@@ -39,18 +39,12 @@ Sarabia, J.M and Prieto, F. (2009). The Pareto-positive stable distribution: A n
 Hosking, J. R. M. (1990). L-moments: analysis and estimation of distributions using linear combinations of order statistics. \emph{Journal of the Royal Statistical Society, Series B}, \bold{52}, 105-124.
 
 }
-%\author{
-%%  ~~who you are~~
-%}
-%\note{
-%%  ~~further notes~~
-%}
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{PPS.fit}}, \code{\link{coef.PPSfit}}, \code{\link{print.PPSfit}}, \code{\link{plot.PPSfit}}, \code{\link{GoF.PPSfit}}
+\code{\link{coef.PPSfit}}, \code{\link{print.PPSfit}}, \code{\link{plot.PPSfit}}, \code{\link{GoF.PPSfit}}
 }
+
+
 \examples{
 x <- rPPS(50, 1.2, 100, 2.3)
 fit <- PPS.fit(x)
@@ -62,7 +56,3 @@ par(mfrow=c(2,2))
 plot(fit)
 GoF.PPSfit(fit, k = 50, show.iters = FALSE)
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-%\keyword{ ~kwd1 }
-%\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
