@@ -9,7 +9,7 @@ It prints its argument (typically from \code{PPS.fit()}), returning some of the 
 }
 \arguments{
   \item{x}{a \code{PPSfit} object.}
-  \item{digits}{the number of digits to be printed}
+  \item{digits}{the number of digits to be printed.}
   \item{\dots}{other arguments.}
 }
 

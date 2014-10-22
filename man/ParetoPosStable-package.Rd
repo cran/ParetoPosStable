@@ -3,17 +3,19 @@
 \alias{ParetoPosStable}
 \docType{package}
 \title{
-Computing, fitting and validating the Pareto Positive Stable distribution
+Computing, fitting and validating the PPS distribution
 }
 \description{
-Statistical functions to describe a Pareto Positive Stable distribution and fit it to real data. Graphical and statistical tools to validate the fits are included.
+Statistical functions to describe a Pareto Positive Stable (PPS) 
+distribution and fit it to real data. Graphical and statistical tools to 
+validate the fits are included.
 }
 \details{
 \tabular{ll}{
 Package: \tab ParetoPosStable\cr
 Type: \tab Package\cr
-Version: \tab 1.0.2\cr
-Date: \tab 2014-02-19\cr
+Version: \tab 1.0.3\cr
+Date: \tab 2014-10-22\cr
 License: \tab GPL-2 | GPL-3\cr
 }
 }
@@ -30,10 +32,10 @@ x <- rPPS(50, 1.2, 100, 2.3)
 fit <- PPS.fit(x)
 print(fit)
 coef(fit)
-se.PPSfit(fit, k = 50, show.iters = FALSE)
+se(fit, k = 50, show.iters = FALSE)
 logLik(fit)
 par(mfrow=c(2,2))
 plot(fit)
-GoF.PPSfit(fit, k = 50, show.iters = FALSE)
+GoF(fit, k = 50, show.iters = FALSE)
 }
 

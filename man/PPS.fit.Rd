@@ -41,18 +41,18 @@ Hosking, J. R. M. (1990). L-moments: analysis and estimation of distributions us
 }
 
 \seealso{
-\code{\link{coef.PPSfit}}, \code{\link{print.PPSfit}}, \code{\link{plot.PPSfit}}, \code{\link{GoF.PPSfit}}
+\code{\link{coef.PPSfit}}, \code{\link{print.PPSfit}}, \code{\link{plot.PPSfit}}, \code{\link{GoF}}
 }
 
 
 \examples{
-x <- rPPS(50, 1.2, 100, 2.3)
-fit <- PPS.fit(x)
+data(turkey)
+fit <- PPS.fit(turkey$Pop2000)
 print(fit)
 coef(fit)
-se.PPSfit(fit, k = 50, show.iters = FALSE)
+se(fit, k = 100, show.iters = FALSE)
 logLik(fit)
 par(mfrow=c(2,2))
 plot(fit)
-GoF.PPSfit(fit, k = 50, show.iters = FALSE)
+GoF(fit, k = 100, show.iters = FALSE)
 }

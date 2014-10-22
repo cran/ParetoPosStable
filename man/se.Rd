@@ -1,15 +1,18 @@
-\name{se.PPSfit}
-\alias{se.PPSfit}
+\name{se}
+\alias{se}
+\alias{se.default}
+%\alias{print.se}
 \title{Approximated standard errors of Pareto Positive Stable (PPS) parameter estimates}
 \description{
 It approximates the stantard errors of PPS parameter estimates by bootstrapping.}
 \usage{
-se.PPSfit(PPSfit, k = 2000, show.iters = TRUE)
+  \method{se}{default}(PPSfit, k = 2000, show.iters = TRUE, ...)
 }
 \arguments{
   \item{PPSfit}{a \code{PPSfit} Object, typically from \code{PPS.fit()}.}
   \item{k}{the number of steps in the bootstrapping procedure.}
   \item{show.iters}{A logical argument specifying if the steps in the bootstrap iteration procedure are shown.}
+  \item{\dots}{other arguments.}
 }
 \details{
 The function simulates \code{k} samples from the model given in the \code{PPSfit} argument, fits them with the same method of estimation and uses the parameter estimates to approximate the standard errors.
@@ -28,6 +31,5 @@ Sarabia, J.M and Prieto, F. (2009). The Pareto-positive stable distribution: A n
 x <- rPPS(50, 1.2, 100, 2.3)
 fit <- PPS.fit(x)
 coef(fit)
-se.PPSfit(fit, k = 50, show.iters = FALSE)
+se(fit, k = 50, show.iters = FALSE)
 }
-

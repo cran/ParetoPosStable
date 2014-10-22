@@ -1,37 +1,51 @@
 \name{dPPS}
 \alias{dPPS}
-\title{Density of the Pareto Positive Stable (PPS) distribution}
-\description{\code{dPPS} returns values of the density for a PPS distribution}
+\alias{pPPS}
+\alias{hPPS}
+\alias{qPPS}
+\alias{rPPS}
+\title{The Pareto Positive Stable (PPS) distribution}
+\description{Density, distribution function, hazard function, quantile function and random generation for the Pareto Positive Stable (PPS) distribution with parameters \code{lam}, \code{sc} and \code{v}.}
 \usage{
-dPPS(x, lam, sc, v)
+dPPS(x, lam, sc, v, log = FALSE)
+pPPS(x, lam, sc, v, lower.tail = TRUE, log.p = FALSE)
+qPPS(p, lam, sc, v, lower.tail = TRUE, log.p = FALSE)
+hPPS(x, lam, sc, v)
+rPPS(n, lam, sc, v)
 }
 \arguments{
   \item{x}{vector of quantiles.}
-  \item{lam}{first shape parameter.}
-  \item{sc}{scale parameter.}
-  \item{v}{second shape parameter.}
+  \item{p}{vector of probabilities.}
+  \item{n}{number of random values to return.}
+  \item{lam}{vector of (non-negative) first shape parameters.}
+  \item{sc}{vector of (non-negative) scale parameters.}
+  \item{v}{vector of (non-negative) second shape parameters.}
+  \item{log, log.p}{logical; if TRUE, probabilities/densities p are returned as \eqn{log(p)}.}
+  \item{lower.tail}{logical; if TRUE (default), probabilities are \eqn{P[X \le x]}, otherwise, \eqn{P[X > x]}.
+}
 }
 \details{
-See Sarabia and Prieto (2009) for the expression of the density.
+The PPS distribution has density
+\deqn{f(x) = \lambda \nu [log(x / \sigma)] ^ (\nu-1) exp(- \lambda [log(x / \sigma)] ^ \nu) / x,}
+cumulative distribution function
+\deqn{F(x) = 1 - exp(- \lambda [log(x / \sigma) ^ \nu]),}
+quantile function
+\deqn{Q(p) = \sigma exp([- (1 / \lambda) log(1 - p)] ^ (1 / \nu))}
+and hazard function
+\deqn{\lambda \nu (log(x / \sigma)) ^ (\nu - 1)  x ^ (-1)}
+See Sarabia and Prieto (2009) for the details about the numbers random generation.
 }
 \value{
-The densities.
+\code{dPPS} gives the (log) density, \code{pPPS} gives the (log) distribution function, \code{qPPS} gives the quantile function, and \code{rpois} generates random samples.
+
+Invalid parameters will result in return value \code{NaN}, with a warning.
+
+The length of the result is determined by \code{n} for \code{rPPS}, and is the common length of the numerical arguments for the other functions.
 }
 \references{
 Sarabia, J.M and Prieto, F. (2009). The Pareto-positive stable distribution: A new descriptive model for city size data, \emph{Physica A: Statistical Mechanics and its Applications}, \bold{388}(19), 4179-4191.
 }
-%\author{
-%%  ~~who you are~~
-%}
-%\note{
-%%  ~~further notes~~
-%}
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
-\seealso{
-\code{\link{pPPS}} for the cumulative distribution function, \code{\link{qPPS}} for the quantile function, \code{\link{hPPS}} for the hazard function and \code{\link{rPPS}} for the random generation of data.
-}
 \examples{
 print(x <- sort(rPPS(10, 1.2, 100, 2.3)))
 dPPS(x, 1.2, 100, 2.3)
@@ -39,7 +53,3 @@ pPPS(x, 1.2, 100, 2.3)
 qPPS(pPPS(x, 1.2, 100, 2.3), 1.2, 100, 2.3)
 hPPS(x, 1.2, 100, 2.3)
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-%\keyword{ ~kwd1 }
-%\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line

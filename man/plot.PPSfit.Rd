@@ -17,7 +17,7 @@
 \details{
 The plots return:
 
-1. The histogram of the observations and the fitted PPS density (\code{which = 1}). Optional \code{ylim} and \code{breaks} arguments are provided to prevent frequent imbalances between density and histogram scales in real data: they work as the analogue arguments of the default \code{hist} function when \code{which = 1}.
+1. The histogram of the observations and the fitted PPS density (\code{which = 1}). Optional \code{ylim} and \code{breaks} arguments are provided to prevent frequent imbalances between density and histogram scales in real data: they work as the analogue arguments of the default \code{hist} function.
 
 2. The empirical distribution function of data and the cumulative distribution function of the fitted model (\code{which = 2}).
 
@@ -34,8 +34,11 @@ Sarabia, J.M and Prieto, F. (2009). The Pareto-positive stable distribution: A n
 \code{\link{PPS.fit}}
 }
 \examples{
-x <- rPPS(50, 1.2, 100, 2.3)
-fit <- PPS.fit(x)
+data(forbes400)
+data(forbes400)
+fit <- PPS.fit(forbes400$NetWorth)
 par(mfrow=c(2,2))
 plot(fit)
+dev.off()
+plot(fit, which = 1, breaks = seq(0, 60, length.out = 60))
 }

@@ -7,18 +7,22 @@ coef.PPSfit <-
   }
 
 dPPS <-
-  function(x,lam,sc,v){
+  function(x,lam,sc,v, log = FALSE){
     if (lam<=0 | sc<=0 | v<=0) salida<-0
     else{
       salida<-rep(NA,length(x))
       salida[(x<sc)==1]<-rep(0,sum(x<sc))
       salida[(x<sc)==0]<-lam*v*(log(x[(x<sc)==0]/sc))^(v-1)*x[(x<sc)==0]^(-1)*exp(-lam*(log(x[(x<sc)==0]/sc))^v)
     }
+    if (log == TRUE) salida <- log(salida)
     return(salida)
   }
 
-GoF.PPSfit <-
-  function (PPSfit, k = 2000, show.iters = TRUE) {
+GoF <- function(PPSfit, ...) 
+  UseMethod("GoF")
+
+GoF.default <-
+  function (PPSfit, k = 2000, show.iters = TRUE, ...) {
     if (is.null(PPSfit$Pareto)) PPSfit$Pareto <- FALSE
     if (PPSfit$Pareto==TRUE & !is.null(PPSfit$sigma)) pars <- c(as.numeric(PPSfit$estimate), PPSfit$sigma, 1)
     if (PPSfit$Pareto==TRUE & is.null(PPSfit$sigma)) pars <- c(as.numeric(PPSfit$estimate), 1)
@@ -28,19 +32,17 @@ GoF.PPSfit <-
     estadistico.ks <- ks.test(datos, pPPS, lam = pars[1], sc = pars[2], v = pars[3])$statistic
     estadistico.ad <- ad.test(datos, pPPS, lam = pars[1], sc = pars[2], v = pars[3])$statistic
     rango <- function(y) -(length(y)*ecdf(y)(y)-(length(y)+1))
-    #z <- log(log(datos/pars[2]))
-    #y <- log(-log(rango(datos)/(PPSfit$n+1)))
     z <- log(log(datos[datos!=pars[2]]/pars[2]))
     y <- log(-log(rango(datos[datos!=pars[2]])/(PPSfit$n+1)))
     estadistico.pps <- sum((y-(log(pars[1])+pars[3]*z))^2)
     metodo <- PPSfit$estim.method
     n <- PPSfit$n
-    ks.sample <- c()
-    ad.sample <- c()
-    pps.sample <- c()
+    ks.sample <- rep(NA, k)
+    ad.sample <- rep(NA, k)
+    pps.sample <- rep(NA, k)
     for (i in 1:k){
       if (show.iters == TRUE) cat("Step",i,"out of", k, "\n")
-      datos.sim <- rPPS(n, pars[1], pars[2], pars[3])#Simulo datos con los parámetros estimados (H0)
+      datos.sim <- rPPS(n, pars[1], pars[2], pars[3])
       if (PPSfit$Pareto == FALSE & is.null(PPSfit$sigma)){
         ajuste.sim <- PPS.fit(datos.sim, estim.method = metodo, Pareto = PPSfit$Pareto)
         pars.sim <- as.numeric(ajuste.sim$estimate)
@@ -58,17 +60,30 @@ GoF.PPSfit <-
         pars.sim <- c(as.numeric(ajuste.sim$estimate), PPSfit$sigma, 1) 
       }
       test.ks<-ks.test(datos.sim, pPPS, lam = pars.sim[1], sc = pars.sim[2], v = pars.sim[3])
-      ks.sample <- c(ks.sample, test.ks$statistic)
+      ks.sample[i] <- test.ks$statistic
       test.ad<-ad.test(datos.sim, pPPS, lam = pars.sim[1], sc = pars.sim[2], v = pars.sim[3])
-      ad.sample <- c(ad.sample, test.ad$statistic)
-      #z <- log(log(datos.sim/pars.sim[2]))
-      #y <- log(-log(rango(datos.sim)/(PPSfit$n+1)))
+      ad.sample[i] <- test.ad$statistic
       z <- log(log(datos.sim[datos.sim!=pars.sim[2]]/pars.sim[2]))
       y <- log(-log(rango(datos.sim[datos.sim!=pars.sim[2]])/(PPSfit$n+1)))
-      pps.sample <- c(pps.sample, sum((y-(log(pars.sim[1])+pars.sim[3]*z))^2))
+      pps.sample[i] <- sum((y-(log(pars.sim[1])+pars.sim[3]*z))^2)
     }
-    return(list(ks.statistic = estadistico.ks, ad.statistic = estadistico.ad, pps.statistic = estadistico.pps, ks.p.value = sum(estadistico.ks<ks.sample)/(k+1), ad.p.value = sum(estadistico.ad<ad.sample)/(k+1), pps.p.value = sum(estadistico.pps<pps.sample)/(k+1), PPSfit))
+    tests <- list(ks.statistic = estadistico.ks, ad.statistic = estadistico.ad, pps.statistic = estadistico.pps, ks.p.value = sum(estadistico.ks<ks.sample)/(k+1), ad.p.value = sum(estadistico.ad<ad.sample)/(k+1), pps.p.value = sum(estadistico.pps<pps.sample)/(k+1), PPSfit)
+    ans <- list(tests.results = tests)
+    ans$call <- match.call()
+    class(ans) <- "GoF"
+    ans
   }
+
+print.GoF <- function(x, digits = max(3, getOption("digits") - 3), ...)
+{
+  if (!class(x) == "GoF") stop("Object must be returned by 'GoF' function") 
+  cat("\nGoodness of fit tests:\n")
+  tabla <- data.frame(Statistic.value = c(x$tests.results$ks.statistic, x$tests.results$ad.statistic, x$tests.results$pps.statistic), p.value = c(x$tests.results$ks.p.value, x$tests.results$ad.p.value, x$tests.results$pps.p.value))
+  row.names(tabla) <- c("KS test", "AD test", "PPS test")
+  print(tabla)
+  cat("\n")
+  invisible(x)
+}
 
 
 hPPS <-
@@ -224,13 +239,15 @@ plot.PPSfit <-
 
 
 pPPS <-
-  function(x,lam,sc,v){
+  function(x,lam,sc,v, lower.tail = TRUE, log.p = FALSE){
     if (lam<=0 | sc<=0 | v<=0) salida<-0
     else{
       salida<-rep(NA,length(x))
       salida[(x<sc)==1]<-rep(0,sum(x<sc))
       salida[(x<sc)==0]<-1-exp(-lam*(log(x[(x<sc)==0]/sc))^v)
     }
+    if (lower.tail == FALSE) salida <- 1 - salida
+    if (log.p == TRUE) salida <- log(salida)
     return(salida)
   }
 
@@ -240,7 +257,6 @@ PPS.fit <-
     if (Pareto==TRUE) pareto.fit(x, estim.method, sigma, start, ...)
     else{
       
-#      if (!is.element(estim.method,c("MLE", "OLS", "iMLE", "LMOM", "KSMIN"))) stop("The estimation method in method.estim is not OLS, MLE, iMLE, LMOM nor KSMIN")
       if (!is.element(estim.method,c("MLE", "OLS", "iMLE", "LMOM"))) stop("The estimation method in method.estim is not OLS, MLE, iMLE nor LMOM")
       
       if (missing(x) || length(x) == 0L || mode(x) != "numeric" || any(x<=0)) stop("'x' must be a non-empty numeric vector of positive values")
@@ -254,7 +270,7 @@ PPS.fit <-
       y <- log(-log(1-n*Fn(x)/(n+1)))
       
       
-      # OLS ---------------------------------------------------------------------
+      # OLS ---------------------------------------------------------
       OLS.estimate<-function(x, sigma){
         
         if (is.null(sigma)){
@@ -283,7 +299,7 @@ PPS.fit <-
       }
       
       
-      # MLE ---------------------------------------------------------------------
+      # MLE --------------------------------------------------------
       MLE.estimate <- function(x, sigma, start){
         
         if (!is.null(sigma)){
@@ -330,7 +346,7 @@ PPS.fit <-
       }
       
       
-      # iMLE --------------------------------------------------------------------
+      # iMLE --------------------------------------------------------
       iMLE.estimate<-function(x){
         logver <- function(sigma){
           z <- log(x/sigma)
@@ -355,7 +371,7 @@ PPS.fit <-
       }
       
       
-      # LMOM --------------------------------------------------------------------
+      # LMOM -------------------------------------------------------
       LMOM.estimate <- function(x, start){
         code1<-1
         code2<-1
@@ -405,27 +421,7 @@ PPS.fit <-
       }
       
       
-      # KSMIN -------------------------------------------------------------------
-#       KSMIN.estimate <- function(x, start){
-#         if (is.null(start)) pars<-iMLE.estimate(x)$estimate
-#         else pars <- start
-#         obj <- function(p) {
-#           l<-exp(p[1])
-#           s<-min(x)/(1+exp(-p[2]))
-#           v<-exp(p[3])
-#           ks.test(x,pPPS,l,s,v)$statistic
-#         }
-#         minimo<-optim(par = c(log(pars[[1]]), -log(min(x)/pars[[2]]-1), log(pars[[3]])), fn = obj)
-#         lam<-exp(minimo$par[1])
-#         sigma<-min(x)/(1+exp(-minimo$par[2]))
-#         v<-exp(minimo$par[3])
-#         minimum <- minimo$value
-#         loglik <- (n*(log(lam)+log(v))+(v-1)*sum(log(log(x/sigma)))-lam*sum(log(x/sigma)^v)-sum(log(x)))
-#         return(structure(list(estimate = c(lam, sigma, v), loglik = loglik, n = n, obs = x, obsName = xName, estim.method = "KSMIN", convergence = minimo$convergence), class = "PPSfit"))
-#       }
-      
-      
-      # Return ------------------------------------------------------------------
+# Return ------------------------------------------------------------
       if (estim.method == "MLE") return(MLE.estimate(x, sigma, start))
       if (estim.method == "iMLE") return(iMLE.estimate(x))
       if (estim.method == "OLS") return(OLS.estimate(x, sigma))
@@ -469,7 +465,9 @@ print.PPSfit <-
 
 
 qPPS <-
-  function(p,lam,sc,v){
+  function(p,lam,sc,v, lower.tail = TRUE, log.p = FALSE){
+    if (lower.tail == FALSE) p <- 1 - p
+    if (log.p == TRUE) p <- exp(p)
     if (lam<=0 | sc<=0 | v<=0) salida<-0
     else{
       salida<-rep(NA,length(p))
@@ -485,75 +483,84 @@ rPPS <-
     sc*exp(lam^(-1/v)*weib)
   }
 
-se.PPSfit <-
-  function(PPSfit, k=2000, show.iters = TRUE){
+
+se <- function(PPSfit, ...)
+  UseMethod("se")
+  
+se.default <- 
+  function(PPSfit, k=2000, show.iters = TRUE, ...){
     if (is.null(PPSfit$Pareto)) PPSfit$Pareto <- FALSE
     if (PPSfit$Pareto == FALSE){
       if (is.null(PPSfit$sigma)){
-        lambdas <- c()
-        sigmas <- c()
-        nus <- c()
-        i <- 1
-        while (i < k){
+        lambdas <- rep(NA, k)
+        sigmas <- rep(NA, k)
+        nus <- rep(NA, k)
+        for (i in 1:k){
           if (show.iters == TRUE) cat("Step",i,"out of", k, "\n")
           datos <- sample(x = PPSfit$obs, size = PPSfit$n, replace = TRUE)
           ajuste <- PPS.fit(datos, estim.method = PPSfit$estim.method, start = PPSfit$estimate)
-          lambdas <- c(lambdas, ajuste$estimate[[1]])
-          sigmas <- c(sigmas, ajuste$estimate[[2]])
-          nus <- c(nus, ajuste$estimate[[3]])
-          i <- i+1
+          lambdas[i] <- ajuste$estimate[[1]]
+          sigmas[i] <- ajuste$estimate[[2]]
+          nus[i] <- ajuste$estimate[[3]]
         }
         se.lambda <- sqrt(sum((lambdas - PPSfit$estimate[[1]])^2)/k)
         se.sigma <- sqrt(sum((sigmas - PPSfit$estimate[[2]])^2)/k)
         se.nu <- sqrt(sum((nus - PPSfit$estimate[[3]])^2)/k)
-        return(list(se.lambda = se.lambda, se.sigma = se.sigma, se.nu = se.nu))
+        se.value <- data.frame(lambda = se.lambda, sigma = se.sigma, nu = se.nu)
       }
       else {
-        lambdas <- c()
-        nus <- c()
-        i <- 1
-        while (i < k){
+        lambdas <- rep(NA, k)
+        nus <- rep(NA, k)
+        for (i in 1:k){
           if (show.iters == TRUE) cat(c("Step ",i,"out of ",k, "\n"))
           datos <- sample(x = PPSfit$obs, size = PPSfit$n, replace = TRUE)
           ajuste <- PPS.fit(datos, estim.method = PPSfit$estim.method, sigma = PPSfit$sigma, start = PPSfit$estimate)
-          lambdas <- c(lambdas, ajuste$estimate[[1]])
-          nus <- c(nus, ajuste$estimate[[2]])
-          i <- i+1
+          lambdas[i] <- ajuste$estimate[[1]]
+          nus[i] <- ajuste$estimate[[2]]
         }
         se.lambda <- sqrt(sum((lambdas - PPSfit$estimate[[1]])^2)/k)
         se.nu <- sqrt(sum((nus - PPSfit$estimate[[2]])^2)/k)
-        return(list(se.lambda = se.lambda, se.nu = se.nu))
+        se.value <- data.frame(lambda = se.lambda, nu = se.nu)
       }
     }
     if (PPSfit$Pareto == TRUE){
       if (is.null(PPSfit$sigma)){
-        lambdas <- c()
-        sigmas <- c()
-        i <- 1
-        while (i < k){
+        lambdas <- rep(NA, k)
+        sigmas <- rep(NA, k)
+        for (i in 1:k){
           if (show.iters == TRUE) cat("Step",i,"out of", k, "\n")
           datos <- sample(x = PPSfit$obs, size = PPSfit$n, replace = TRUE)
           ajuste <- PPS.fit(datos, estim.method = PPSfit$estim.method, Pareto = TRUE)
-          lambdas <- c(lambdas, ajuste$estimate[[1]])
-          sigmas <- c(sigmas, ajuste$estimate[[2]])
-          i <- i+1
+          lambdas[i] <- ajuste$estimate[[1]]
+          sigmas[i] <- ajuste$estimate[[2]]
         }
         se.lambda <- sqrt(sum((lambdas - PPSfit$estimate[[1]])^2)/k)
         se.sigma <- sqrt(sum((sigmas - PPSfit$estimate[[2]])^2)/k)
-        return(list(se.lambda = se.lambda, se.sigma = se.sigma))
+        se.value <- data.frame(lambda = se.lambda, sigma = se.sigma)
       }
       else {
-        lambdas <- c()
-        i <- 1
-        while (i < k){
+        lambdas <- rep(NA, k)
+        for (i in 1:k){
           if (show.iters == TRUE) cat(c("Step ",i,"out of ",k, "\n"))
           datos <- sample(x = PPSfit$obs, size = PPSfit$n, replace = TRUE)
           ajuste <- PPS.fit(datos, estim.method = PPSfit$estim.method, sigma = PPSfit$sigma, Pareto = TRUE)
-          lambdas <- c(lambdas, ajuste$estimate[[1]])
-          i <- i+1
+          lambdas[i] <- ajuste$estimate[[1]]
         }
         se.lambda <- sqrt(sum((lambdas - PPSfit$estimate[[1]])^2)/k)
-        return(list(se.lambda = se.lambda))
+        se.value <- data.frame(lambda = se.lambda)
       }
     }
+    ans <- list(se = se.value)
+    ans$call <- match.call()
+    class(ans) <- "se"
+    ans
   }
+
+print.se <- function(x, digits = max(3, getOption("digits") - 3), ...)
+{
+  if(!inherits(x, "se")) stop("first argument should be of class 'se'")
+  
+  cat("\nStandard errors:\n")
+  print(x$se)
+  cat("\n")
+}
